@@ -1,47 +1,3 @@
-// import {$} from '@wdio/globals'
-// import Page from './page.js';
-//
-// /**
-//  * sub page containing specific selectors and methods for a specific page
-//  */
-// class FlightBooking extends Page {
-//     /**
-//      * Returns an input element with the specified placeholder text.
-//      * @param {string} placeholderText The text of the placeholder attribute to search for.
-//      * @returns {WebdriverIO.Element} WebdriverIO element representing the input field.
-//      */
-//     async clickInputFieldWithPlaceholder(placeholderText) {
-//         $(`//input[@placeholder="${placeholderText}"]`).click();
-//     }
-//
-//     get btnSubmit() {
-//         return $("button=Tìm chuyến bay");
-//     }
-//
-//     get getValue() {
-//         return $("button=Tìm chuyến bay");
-//     }
-//
-//     async selectAirports(airportName){
-//         const airportOption = await $(`//p[contains(text(), "${airportName}")]`);
-//         await airportOption.wait
-//         await airportOption.click();
-//     }
-//
-//     async selectDepartureAndDestination(departure,departureAirport,destination,destinationAirport) {
-//         const xpathInputField = "//div[contains(@class,'flight_from_auto')]//input[@data-id='flight_from']";
-//         // await this.clickInputFieldWithPlaceholder("Chọn điểm đi");
-//         // await $(xpathInputField).setValue(departure);
-//         // await this.selectAirports(departureAirport);
-//         await this.clickInputFieldWithPlaceholder("Chọn điểm đến");
-//         await $(xpathInputField).setValue(destination);
-//         await this.selectAirports(destinationAirport);
-//         await this.btnSubmit.click();
-//     }
-// }
-//
-// export default new FlightBooking();
-
 import {$} from '@wdio/globals'
 import Page from './page.js';
 
@@ -73,9 +29,12 @@ class FlightBooking extends Page {
         const inputField = await this.inputFieldWithPlaceholder(placeholder);
         const xpathInputField = `//div[@data-id="flight_${xpath}"]//input[@data-id="flight_${xpath}"]`;
         await inputField.click();
-        await $(xpathInputField).setValue(airportName);
-        await browser.pause(3000); // Wait for suggestions to load
-        const airportOption = await $(`//div[@class="tt-suggestion"]//strong[contains(text(), "${airportName}")]`);
+        let airportOption = await $(`//div[@class="tt-suggestion"]//strong[contains(text(), "${airportName}")]`);
+        while(!(await airportOption.isExisting())) {
+            await $(xpathInputField).setValue(airportName);
+            await browser.pause(3000); // Wait for suggestions to load
+            airportOption = await $(`//div[@class="tt-suggestion"]//strong[contains(text(), "${airportName}")]`);
+        }
         await airportOption.click();
     }
 
